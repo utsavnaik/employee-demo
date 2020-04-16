@@ -15,13 +15,15 @@ import { tap, debounceTime, distinctUntilChanged } from 'rxjs/operators';
 })
 export class EmployeelistComponent implements AfterViewInit, OnInit {
   field = 'id';
-  result_length = 1000;
-  allEmployees: Observable<EmployeeModel[]>;  
   dataSource:any;
   displayedColumns: string[] = ['id', 'firstName', 'lastName', 'gender', 'contact'];
+  allEmployees: Observable<EmployeeModel[]>;  
+  
   @ViewChild('input',{static:true}) input: ElementRef;
   @ViewChild(MatPaginator, {static: true}) paginator: MatPaginator;
   @ViewChild(MatSort,{static:true}) sort: MatSort;
+  
+  
   constructor(private employeeService:EmployeeService) {
   }
 
@@ -30,7 +32,33 @@ export class EmployeelistComponent implements AfterViewInit, OnInit {
   }
 
   ngAfterViewInit(): void {
-    
+    this.performSearch();
+    this.pageChange();
+    this.performSort();
+  }
+
+  performSort() {
+    this.sort.direction = 'asc';
+    this.sort.sortChange.subscribe((ele) => {
+      this.paginator.pageIndex = 0;
+      this.field = ele.active;
+      this.loadAllEmployees();
+     });
+  }
+
+  pageChange() {
+    this.paginator.page
+    .pipe(
+        tap(() => this.loadAllEmployees())
+    )
+    .subscribe();
+  }
+
+  onRowClicked(row) {
+    console.log('Row clicked: ', row);
+  }
+
+  performSearch() {
     fromEvent(this.input.nativeElement,'keyup')
             .pipe(
                 debounceTime(150),
@@ -41,24 +69,6 @@ export class EmployeelistComponent implements AfterViewInit, OnInit {
                 })
             )
             .subscribe();
-
-    this.paginator.page
-    .pipe(
-        tap(() => this.loadAllEmployees())
-    )
-    .subscribe();
-
-    this.sort.direction = 'asc';
-    this.sort.sortChange.subscribe((ele) => {
-      this.paginator.pageIndex = 0;
-      this.field = ele.active;
-      this.loadAllEmployees();
-     });
-
-  }
-
-  onRowClicked(row) {
-    console.log('Row clicked: ', row);
   }
 
    loadAllEmployees() {  
