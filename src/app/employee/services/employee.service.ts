@@ -28,23 +28,32 @@ export class EmployeeService {
            )
     )); 
   }  
-  getEmployeeById(EmployeeApiModelId: string): Observable<EmployeeApiModel> {  
-    return this.http.get<EmployeeApiModel>(this.url+'/' + EmployeeApiModelId);  
+  getEmployeeById(id: string): Observable<EmployeeModel> {  
+    return this.http.get<EmployeeApiModel>(this.url+'/' + id).pipe(
+      map((emp:EmployeeApiModel)=> new EmployeeModel(emp))
+    );  
   }  
 
-  createEmployee(EmployeeApiModel: EmployeeApiModel): Observable<EmployeeApiModel> {  
+  createEmployee(employee: EmployeeApiModel): Observable<EmployeeModel> {  
     const httpOptions = { headers: new HttpHeaders({ 'Content-Type': 'application/json'}) };  
-    return this.http.post<EmployeeApiModel>(this.url + '/InsertEmployeeApiModelDetails/',  
-    EmployeeApiModel, httpOptions);  
-  }  
-  updateEmployee(EmployeeApiModel: EmployeeApiModel): Observable<EmployeeApiModel> {  
+    console.log('before send',employee);
+    return this.http.post<EmployeeApiModel>(this.url,employee, httpOptions).
+    pipe(
+      map((emp:EmployeeApiModel)=> new EmployeeModel(emp))
+    );
+  }
+
+  updateEmployee(employee: EmployeeApiModel): Observable<EmployeeModel> {  
     const httpOptions = { headers: new HttpHeaders({ 'Content-Type': 'application/json'}) };  
-    return this.http.put<EmployeeApiModel>(this.url + '/UpdateEmployeeApiModelDetails/',  
-    EmployeeApiModel, httpOptions);  
-  }  
-  deleteEmployeeById(EmployeeApiModelid: string): Observable<number> {  
+    return this.http.put<EmployeeApiModel>(this.url + '/'+employee.id,  
+    employee, httpOptions).pipe(
+      map((emp:EmployeeApiModel)=> new EmployeeModel(emp))
+    );  
+  } 
+
+  deleteEmployeeById(id: String): Observable<any> {  
     const httpOptions = { headers: new HttpHeaders({ 'Content-Type': 'application/json'}) };  
-    return this.http.delete<number>(this.url + '/DeleteEmployeeApiModelDetails?id=' +EmployeeApiModelid,  
+    return this.http.delete(this.url +'/' +id,  
  httpOptions);  
   }
 }

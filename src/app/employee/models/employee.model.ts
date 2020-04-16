@@ -7,12 +7,20 @@ export interface Employee {
     contact:string
   }
 
-  export interface EmployeeApiModel {
+  export class EmployeeApiModel {
     id: number;
     first_name: string;
     last_name: string;
     gender: string;
     contact:string
+
+    constructor(source: any) {
+      this.id = source.id || null;
+      this.first_name = source.firstName || null;
+      this.last_name = source.lastName || null;
+      this.gender = source.gender || 'male';
+      this.contact = source.contact || null
+    }
   }
   
   export class EmployeeModel implements Employee {
@@ -23,7 +31,7 @@ export interface Employee {
     contact:string
   
     constructor(source: EmployeeApiModel) {
-      this.id = source.id;
+      this.id = source.id || null;
       this.firstName = source.first_name;
       this.lastName = source.last_name;
       this.gender = source.gender;

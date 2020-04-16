@@ -1,1 +1,32 @@
-<p>addemployee works!</p>
+<form [formGroup]="employeeForm" (ngSubmit)="onSubmit()">   
+    <mat-form-field class="example-full-width">
+        <mat-label>First Name</mat-label>
+        <input matInput placeholder="First Name" formControlName="firstName" required>
+      </mat-form-field>
+      <mat-error *ngIf="employeeFormControl.firstName.touched && employeeFormControl.firstName.hasError('required')">
+        Please enter a First Name
+      </mat-error>
+      <mat-form-field class="example-full-width">
+        <mat-label>Last Name</mat-label>
+        <input matInput placeholder="Last Name" formControlName="lastName" required>
+      </mat-form-field>
+      <mat-error *ngIf="employeeFormControl.lastName.touched && employeeFormControl.lastName.hasError('required')">
+        Please enter a last name
+      </mat-error>
+    <mat-radio-group formControlName="gender" aria-label="Gender">
+        <mat-radio-button value="male">Male</mat-radio-button>
+        <mat-radio-button value="female">Female</mat-radio-button>
+      </mat-radio-group>
+      <mat-error *ngIf="employeeFormControl.gender.touched && employeeFormControl.gender.hasError('required')">
+        Please enter a gender
+      </mat-error>
+      <mat-form-field class="example-full-width">
+        <mat-label>Contact</mat-label>
+        <input matInput placeholder="conatct" formControlName="contact" required>
+      </mat-form-field>    
+      <mat-error *ngIf="employeeFormControl.contact.touched && employeeFormControl.contact.hasError('required')">
+        Please enter a contact details
+      </mat-error>
+    <button mat-button type="submit" [disabled]="!employeeForm.valid">Submit</button>
+    <a mat-button href="">cancel</a>
+  </form>
