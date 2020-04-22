@@ -21,8 +21,11 @@ export class EmployeelistComponent implements AfterViewInit, OnInit,OnDestroy {
   field = 'id';
   dataSource:any;
   displayedColumns: string[] = ['id', 'firstName', 'lastName', 'gender', 'contact','action'];
-  allEmployees: Observable<EmployeeModel[]>;  
+  allEmployees: EmployeeModel[] = [];  
   subscriptions: Subscription[] = []
+  pageSize = 250;
+  pageIndex = 0;
+  pageBeforeFetch = 2;
   @ViewChild('input',{static:true}) input: ElementRef;
   @ViewChild(MatPaginator, {static: true}) paginator: MatPaginator;
   @ViewChild(MatSort,{static:true}) sort: MatSort;
@@ -48,6 +51,7 @@ export class EmployeelistComponent implements AfterViewInit, OnInit,OnDestroy {
     this.sort.direction = 'asc';
     this.subscriptions.push(this.sort.sortChange.subscribe((ele) => {
       this.paginator.pageIndex = 0;
+      this.pageIndex = 0;
       this.field = ele.active;
       this.loadAllEmployees();
      }));
@@ -56,12 +60,16 @@ export class EmployeelistComponent implements AfterViewInit, OnInit,OnDestroy {
 
   pageChange() {
     this.subscriptions.push(this.paginator.page
-    .pipe(
-        delay(0),
-        tap(() => this.loadAllEmployees())
-    )
     .subscribe(
-      (data)=>{ console.log(data) },
+      (data)=>{ 
+        if((data.length - (this.pageBeforeFetch * data.pageSize)) > (data.pageIndex * this.paginator.pageSize)) {
+          console.log('api no calls');
+        } else {
+            this.pageIndex = this.pageIndex + 1;
+            console.log('api calls',this.pageIndex);
+            this.loadAllEmployees()
+        }
+      },
       (error)=>{ console.log(error.error)}
     ));
   }
@@ -77,6 +85,7 @@ export class EmployeelistComponent implements AfterViewInit, OnInit,OnDestroy {
                 distinctUntilChanged(),
                 tap(() => {
                     this.paginator.pageIndex = 0;
+                    this.pageIndex = 0;
                     this.loadAllEmployees();
                 })
             )
@@ -84,8 +93,17 @@ export class EmployeelistComponent implements AfterViewInit, OnInit,OnDestroy {
   }
 
    loadAllEmployees() {  
-    this.subscriptions.push(this.employeeService.getAllEmployee(this.field,this.sort.direction,this.paginator.pageIndex, this.paginator.pageSize,this.input.nativeElement.value).subscribe((data)=>{
-      this.dataSource = new MatTableDataSource<EmployeeModel>(data);
+    this.subscriptions.push(this.employeeService.getAllEmployee(this.field,this.sort.direction,this.pageIndex, this.pageSize,this.input.nativeElement.value)
+    .subscribe((data)=>{
+      if(data.length > 0) { 
+          if(this.paginator.pageIndex){
+            this.allEmployees.push(...data);
+          } else {
+            this.allEmployees = data;
+          }
+          this.dataSource = new MatTableDataSource<EmployeeModel>(this.allEmployees);
+          this.dataSource.paginator = this.paginator;
+      }
     }));
   }
 
